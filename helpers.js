@@ -2,8 +2,18 @@ var helpers = {};
 
 // Returns false if the given coordinates are out of range
 helpers.validCoordinates = function(board, distanceFromTop, distanceFromLeft) {
-  return (!(distanceFromTop < 0 || distanceFromLeft < 0 ||
-      distanceFromTop > board.lengthOfSide - 1 || distanceFromLeft > board.lengthOfSide - 1));
+  return (!(distanceFromTop < 1 ||
+            distanceFromLeft < 1 ||
+            distanceFromTop > board.lengthOfSide - 2 ||
+            distanceFromLeft > board.lengthOfSide - 2));
+};
+
+// Returns false if the given coordinates are out of range
+helpers.goodCoordinates = function(board, distanceFromTop, distanceFromLeft) {
+  return (!(distanceFromTop < 0 ||
+            distanceFromLeft < 0 ||
+            distanceFromTop > board.lengthOfSide - 1 ||
+            distanceFromLeft > board.lengthOfSide - 1));
 };
 
 // Returns the tile [direction] (North, South, East, or West) of the given X/Y coordinate
@@ -27,7 +37,9 @@ helpers.getTileNearby = function(board, distanceFromTop, distanceFromLeft, direc
   }
 
   // If the coordinates of the tile nearby are valid, return the tile object at those coordinates
-  if (helpers.validCoordinates(board, fromTopNew, fromLeftNew)) {
+  if (helpers.goodCoordinates(board, fromTopNew, fromLeftNew)) {
+    return board.tiles[fromTopNew][fromLeftNew];
+  } else if (helpers.validCoordinates(board, fromTopNew, fromLeftNew)) {
     return board.tiles[fromTopNew][fromLeftNew];
   } else {
     return false;
@@ -160,7 +172,7 @@ helpers.findNearestNonTeamDiamondMine = function(gameData) {
   }, board);
 
   //Return the direction that needs to be taken to achieve the goal
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 // Returns the nearest unowned diamond mine or false, if there are no diamond mines
@@ -182,7 +194,7 @@ helpers.findNearestUnownedDiamondMine = function(gameData) {
   });
 
   //Return the direction that needs to be taken to achieve the goal
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 // Returns the nearest health well or false, if there are no health wells
@@ -196,7 +208,7 @@ helpers.findNearestHealthWell = function(gameData) {
   });
 
   //Return the direction that needs to be taken to achieve the goal
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 // Returns the direction of the nearest enemy with lower health
@@ -206,14 +218,19 @@ helpers.findNearestWeakerEnemy = function(gameData) {
   var board = gameData.board;
 
   //Get the path info object
-  var pathInfoObject = helpers.findNearestObjectDirectionAndDistance(board, hero, function(enemyTile) {
-    return enemyTile.type === 'Hero' && enemyTile.team !== hero.team && enemyTile.health < hero.health;
-  });
+  var pathInfoObject = helpers.findNearestObjectDirectionAndDistance(
+    board,
+    hero,
+    function(enemyTile) {
+      return enemyTile.type === 'Hero' &&
+        enemyTile.team !== hero.team &&
+        enemyTile.health < hero.health;
+    });
 
   //Return the direction that needs to be taken to achieve the goal
   //If no weaker enemy exists, will simply return undefined, which will
   //be interpreted as "Stay" by the game object
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 // Returns the direction of the nearest enemy
@@ -224,11 +241,11 @@ helpers.findNearestEnemy = function(gameData) {
 
   //Get the path info object
   var pathInfoObject = helpers.findNearestObjectDirectionAndDistance(board, hero, function(enemyTile) {
-    return enemyTile.type === 'Hero' && enemyTile.team !== hero.team
+    return enemyTile.type === 'Hero' && enemyTile.team !== hero.team;
   });
 
   //Return the direction that needs to be taken to achieve the goal
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 // Returns the direction of the nearest friendly champion
@@ -243,7 +260,7 @@ helpers.findNearestTeamMember = function(gameData) {
   });
 
   //Return the direction that needs to be taken to achieve the goal
-  return pathInfoObject.direction;
+  return pathInfoObject;
 };
 
 module.exports = helpers;

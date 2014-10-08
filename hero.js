@@ -96,12 +96,21 @@ var move = function(gameData, helpers) {
   if (myHero.health < 40) {
     //Heal no matter what if low health
     return directionToHealthWell;
-  } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+  } else if (myHero.health < 81) {
     //Heal if you aren't full health and are close to a health well already
     return directionToHealthWell;
+  } else if (helpers.findNearestNonTeamDiamondMine(gameData).distance < 3) {
+    //If healthy, and near a mine, go capture a diamond mine!
+    return helpers.findNearestNonTeamDiamondMine(gameData).direction;
+  } else if (helpers.findNearestEnemy(gameData).distance < 3) {
+    // if nearby enemy, go attack
+    return helpers.findNearestEnemy(gameData).direction;
+  } else if (helpers.findNearestTeamMember(gameData).distance < 4) {
+    // else move to nearest team mate
+    return helpers.findNearestTeamMember(gameData).direction;
   } else {
-    //If healthy, go capture a diamond mine!
-    return helpers.findNearestNonTeamDiamondMine(gameData);
+    // else move to the nearest health well
+    return helpers.findNearestHealthWell(gameData).direction;
   }
 };
 
